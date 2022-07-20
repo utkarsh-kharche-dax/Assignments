@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+    <title>TO-DO</title>
+</head>
+
+<body>
+
+    <div class="container mt-3">
+        <div class="row " style="align-items: center;">
+            <div class="col-11">
+                <header>
+                    <h1>TO-DO</h1>
+                </header>
+            </div>
+            <div class="col-1">
+                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#collapseExample"
+                    aria-expanded="false" aria-controls="collapseExample">
+                    Add Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="collapse {% if task_row %} show {% endif %}" id="collapseExample">
+        <div class="card card-body">
+            <div class="card">
+                <div class="card-header">{% if task_row %} Update {% else %}Login{% endif %}</div>
+                <div class="card-body">
+
+
+
+        <!-- Update and Add -->
+                    <form method="POST" action="{% if task_row %}../../{% else %}{% endif %}">
+                        {% csrf_token %}
+                        <!--Title-->
+                        <div class="form-group row align-items-center">
+                            <label for="task_title" class="col-sm-2 col-form-label">Task Title</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="task_title" id="task_title"
+                                    placeholder="Enter task Title" value="{% if task_row %}{% for task_row_ in task_row %}{{ task_row_.task_title }}  
+                                        {% endfor %} {% else %}{% endif %}" required>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group row align-items-center">
+                            <label for="task_description" class="col-sm-2 col-form-label">Task Description</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" name="task_description" id="task_description"
+                                    placeholder="Entert Description of task (if any)" >{% if task_row %}{% for task_row_ in task_row %}{{ task_row_.task_description}}  
+                                    {% endfor %} {% else %}{% endif %}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- button -->
+                        <div class="form-group row align-items-center">
+                            <label for="task_add_submit_btn" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                {% if task_row %}{% for task_row_ in task_row %} <input type="hidden" value="{{ task_row_.task_id}}" name="task_id">  
+                                    {% endfor %} {% else %}{% endif %}
+                                <button type="submit" class="btn {% if task_row %} btn-warning {% else %}btn-success{% endif %}" name="task_add_submit_btn"
+                                    id="task_add_submit_btn">{% if task_row %} Update Task{% else %}Add Task{% endif %}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Incomplete TODO -->
+    <h3 style="text-align: center"class="text-muted">INCOMPLETED TASKS</h3>
+    <div class="container">
+        {% for task in tasks %}
+        {% if not task.task_is_done %}
+        <div class="row" style="align-items: center;">
+            <div class="col-2">
+                <!-- <form method='post'>
+                <input type="checkbox" id="{{ task.task_id }}" class="searchType">
+                </form> -->
+                <div class="dropdown">
+                    <button class="btn-sm btn-success dropdown-toggle" type="button" id="{{task.task_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Action
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="{{ task.task_id}}">
+                      <a class="dropdown-item text-success" href="{%url 'is_task_done' id=task.task_id %}">Done</a>
+                      <a class="dropdown-item text-warning" href="{%url 'fetchRow' id=task.task_id %}">Update</a>
+                      <a class="dropdown-item text-danger" href="{%url 'delete_task' id=task.task_id %}">Delete</a>
+                    </div>
+                  </div>
+                <!-- <button><a href="{%url 'is_task_done' id=task.task_id %}">Done</a></button>
+                <button><a href="{%url 'fetchRow' id=task.task_id %}">Update</a></button> -->
+            </div>
+            <div class="col-6">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne{{task.task_id }}"
+                    aria-expanded="false" aria-controls="collapseOne">
+                    {{ task.task_title }}
+                </button>
+
+
+                <div id="collapseOne{{task.task_id }}" class="collapse" aria-labelledby="headingOne"
+                    data-parent="#accordion">
+                    <div class="card-body">
+                        <small class="text-muted">DETAILS:</small><br>
+                        {{ task.task_description|linebreaksbr }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <time>Created on: {{ task.task_created_datetime }}</time>
+            </div>
+            <div class="col-2">
+                <time>Updated on: {{ task.task_updated_datetime }}</time>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        <small style="text-align: center"class="text-danger">Click on Task title to view details!</small>
+
+    </div>
+
+    <hr>
+
+    <h3 style="text-align: center"class="text-muted">COMPLETED TASKS</h3>
+    <!-- completed TODO -->
+    <div class="container">
+        {% for task in tasks %}
+        {% if task.task_is_done %}
+        <div class="row" style="align-items: center; background-color: rgb(255, 196, 196)">
+            <div class="col-2">
+                <div class="dropdown">
+                    <button class="btn-sm btn-warning dropdown-toggle" type="button" id="{{task.task_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Action
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="{{ task.task_id}}">
+                      <a class="dropdown-item text-info" href="{%url 'is_task_undone' id=task.task_id %}">UnDo</a>
+                      <a class="dropdown-item text-danger" href="{%url 'delete_task' id=task.task_id %}">Delete</a>
+                    </div>
+                  </div>
+            </div>
+            <div class="col-6">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne{{task.task_id }}"
+                    aria-expanded="false" aria-controls="collapseOne">
+                    {{ task.task_title }}
+                </button>
+
+
+                <div id="collapseOne{{task.task_id }}" class="collapse" aria-labelledby="headingOne"
+                    data-parent="#accordion">
+                    <div class="card-body">
+                        {{ task.task_description|linebreaksbr }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <time>Created on: {{ task.task_created_datetime }}</time>
+            </div>
+            <div class="col-2">
+                <time>Updated on: {{ task.task_updated_datetime }}</time>
+            </div>
+        </div>
+
+        {% endif %}
+        {% endfor %}
+
+
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
