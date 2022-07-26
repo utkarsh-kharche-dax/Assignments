@@ -1,0 +1,17 @@
+--1 Give me list of Customers whose First Name starts with N Or they Live in city xyz.  (Return me Customer Id, First name, Last Name, City) (2 Marks)
+select CustomerId, FirstName, LastName, City from Customers where FirstName like 'N%' or City ='xyz';
+
+--2 Give me list of Tracks where unit prize range between x and y and whose composer name does not contain 'T' (Return me Track Id, Name, Composer, Unit Price) (2 Marks)
+select TrackId, Name, Composer, UnitPrice from tracks where UnitPrice BETWEEN 0.90 AND 0.99 and Name not like '%T%';
+
+--1 Calculate the sum of total Invoice bill and average of total Invoice bill for each day of month (June 2020). (Return me Invoice Date, Sum of Total bill for that day, Average of Total Bill for that day)(3 Marks)
+select InvoiceDate, sum(Total) as sum_total_invoice_bill, avg(Total) as avg_total_invoice_bill from invoices where strftime('%m %Y', InvoiceDate) = '06 2012' group by InvoiceDate;
+
+--2 Total Quantity of Each Track ID purchased so far. Sort the Track IDs in Descending order of it’s total Count (Return me Track ID and its total Quantity) (3 Marks)
+select TrackId, sum(Quantity) as total_quantity from invoice_items group by TrackId order by total_quantity desc;
+
+--1 Give me list of Artist IDs,  whose none of the tracks are present in any Playlist. (Return Artist IDs and their names) (5 Marks)
+select a.ArtistId, a.Name from artists a left join albums ab on a.ArtistId = ab.artistId left join tracks t on ab.albumId = t.albumid left join playlist_track pt on t.trackid= pt.trackid where pt.trackid is NULL;
+
+--2 Give me a list of Album ID whose Tracks are present in more than 10 playlist(Return me Album ID, it's Title and the count of playlists wherein it's tracks are present) {Use Join Statement}  (5 Marks)
+select a.AlbumId, a.Title, count(pt.PlaylistId) as playlist_count from albums a inner join Tracks t on a.AlbumId = t.AlbumId inner join playlist_track pt on t.TrackId = pt.trackId group by a.AlbumId, a.Title having playlist_count >10 ;
